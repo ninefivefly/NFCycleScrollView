@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'NFCycleScrollView_Example' do
+  pod 'NFCycleScrollView', :path => '../'
+
+  target 'NFCycleScrollView_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
