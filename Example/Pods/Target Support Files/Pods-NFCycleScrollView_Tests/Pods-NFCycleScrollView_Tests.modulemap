@@ -1,0 +1,6 @@
+framework module Pods_NFCycleScrollView_Tests {
+  umbrella header "Pods-NFCycleScrollView_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}

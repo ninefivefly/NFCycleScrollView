@@ -1,0 +1,22 @@
+{
+  "name": "NFCycleScrollView",
+  "version": "0.1.0",
+  "summary": "循环滚动图片、支持本地和网络图片.",
+  "description": "1. 循环滚动图片\n2. 支持本地和网络图片\n3. 当手指滑动时停止计时",
+  "homepage": "https://github.com/<GITHUB_USERNAME>/NFCycleScrollView",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "Jiang PengCheng": "ninefivefly@foxmail.com"
+  },
+  "source": {
+    "git": "https://github.com/<GITHUB_USERNAME>/NFCycleScrollView.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source_files": "NFCycleScrollView/Classes/**/*"
+}

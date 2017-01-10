@@ -7,12 +7,16 @@
 //
 
 import UIKit
+import NFCycleScrollView
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        let ss = NFCycleScrollsView()
+        self.view.addSubview(ss)
     }
 
     override func didReceiveMemoryWarning() {

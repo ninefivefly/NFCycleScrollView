@@ -1,0 +1,16 @@
+PODS:
+  - NFCycleScrollView (0.1.0)
+
+DEPENDENCIES:
+  - NFCycleScrollView (from `../`)
+
+EXTERNAL SOURCES:
+  NFCycleScrollView:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  NFCycleScrollView: 885ec8b29204b2825c79d63c6ccd211ed866349c
+
+PODFILE CHECKSUM: 6dcc3214e2f4e5d095e9d4ac4c244f2cf11a3052
+
+COCOAPODS: 1.1.1
