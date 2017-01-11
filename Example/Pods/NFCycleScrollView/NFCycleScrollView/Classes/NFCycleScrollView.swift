@@ -7,21 +7,50 @@
 //
 
 import UIKit
+//import SnapKit
+
+
+extension Timer {
+    
+    //暂停
+    func pauseTimer() {
+        if !self.isValid {
+            return
+        }
+        self.fireDate = Date.distantFuture
+    }
+    
+    //开始
+    func resumeTimer() {
+        if !self.isValid {
+            return
+        }
+        self.fireDate = Date()
+    }
+    
+    //几秒钟后开始
+    func resumeTimerAfterInterval(_ interval:TimeInterval) {
+        if !self.isValid {
+            return
+        }
+        self.fireDate = Date.init(timeIntervalSinceNow: interval)
+    }
+}
+
 
 open class NFCycleScrollView: UIView, UIScrollViewDelegate {
     
-    // 修改pageCtrl样式
     open var mPageCtrl: UIPageControl!
-    // pageCtrl是水平居中的，可以修改底部的距离
     open var mPageCtrlBottomOffset: CGFloat = 20 {
         didSet {
-            self.mPageCtrlBottomConstraint?.constant = -self.mPageCtrlBottomOffset
+//            self.mPageCtrl.snp.updateConstraints { (make) in
+//                make.bottom.equalTo(self).offset(-self.mPageCtrlBottomOffset)
+//            }
         }
     }
     
-    private var mTimer: Timer?
     private var mScrollView: UIScrollView!
-    private var mPageCtrlBottomConstraint: NSLayoutConstraint?
+    private var mTimer: Timer?
     
     // 总共多少张图片
     private var mTotalCount: Int = 0
@@ -38,11 +67,39 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
         super.init(coder: aDecoder)
         configView()
     }
-
+    
+    //MARK: - UIScrollView Delegate Methods
+    // 当手指滑动时，停止计时器
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        self.mTimer?.pauseTimer()
+    }
+    
+    // 当手指结束滑动时，启动计算器
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        self.mTimer?.resumeTimerAfterInterval(mTimerInterval)
+    }
+    
+    /*
+     Tells the delegate when a scrolling animation in the scroll view concludes.
+     The scroll view calls this method at the end of its implementations of the setContentOffset(_:animated:) and scrollRectToVisible(_:animated:) methods, but only if animations are requested.
+     */
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.process(scrollView)
+    }
+    
+    /*
+     Tells the delegate that the scroll view has ended decelerating the scrolling movement.
+     The scroll view calls this method when the scrolling movement comes to a halt. The isDecelerating property of UIScrollView controls deceleration.
+     */
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        self.process(scrollView)
+    }
+    
+    
     //MARK: - Public Methods
     // 要显示的view，内容可以是，UIView, UIImage, ImageUrl, ImageName
     // D ABCD A
-    open func config(views: [Any]?, width: CGFloat, height: CGFloat)  {
+    func config(views: [Any]?, width: CGFloat, height: CGFloat)  {
         guard let contentViews = views, !(contentViews.isEmpty) else {
             return
         }
@@ -80,7 +137,7 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
         self.scrollToPage(page: 1, animated: false)
         
         //3. 开启定时器
-        self.mTimer?.nf_resumeTimerAfterInterval(mTimerInterval)
+        self.mTimer?.resumeTimerAfterInterval(mTimerInterval)
         return
     }
     
@@ -88,50 +145,23 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
     // 因此可能会导致self（即viewController）不能release，所以，
     // 必须在viewWillAppear的时候，将计数器timer停止，否则可能会导致内存泄露。
     // 停止计算器
-    open func stopTimer() {
+    func stopTimer() {
         self.mTimer?.invalidate()
         self.mTimer = nil
     }
     
     // 启动定时器
-    open func resumeTimer(_ isPause: Bool = false) {
+    func resumeTimer(_ isPause: Bool = false) {
         if !(self.mTimer?.isValid ?? false) {
             self.mTimer = Timer.scheduledTimer(timeInterval: mTimerInterval, target: self, selector: #selector(NFCycleScrollView.animationTimerDidFire), userInfo: nil, repeats: true)
             if isPause {
-                self.mTimer?.nf_pauseTimer()
+                self.mTimer?.pauseTimer()
             }
         }
     }
     
-    //MARK: - UIScrollView Delegate Methods
-    // 当手指滑动时，停止计时器
-    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        self.mTimer?.nf_pauseTimer()
-    }
-    
-    // 当手指结束滑动时，启动计算器
-    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        self.mTimer?.nf_resumeTimerAfterInterval(mTimerInterval)
-    }
-    
-    /*
-     Tells the delegate when a scrolling animation in the scroll view concludes.
-     The scroll view calls this method at the end of its implementations of the setContentOffset(_:animated:) and scrollRectToVisible(_:animated:) methods, but only if animations are requested.
-     */
-    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        self.process(scrollView)
-    }
-    
-    /*
-     Tells the delegate that the scroll view has ended decelerating the scrolling movement.
-     The scroll view calls this method when the scrolling movement comes to a halt. The isDecelerating property of UIScrollView controls deceleration.
-     */
-    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        self.process(scrollView)
-    }
-    
     //MARK: - Private Methods
-    internal func viewForObj(obj: Any) -> UIView {
+    func viewForObj(obj: Any) -> UIView {
         if let item = obj as? UIImage {
             let imageView = UIImageView(image: item)
             imageView.contentMode = .scaleAspectFill
@@ -145,11 +175,11 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
         return UIView()
     }
     
-    internal func scrollToPage(page: Int, animated: Bool) {
+    func scrollToPage(page: Int, animated: Bool) {
         self.mScrollView.setContentOffset(CGPoint(x: mWidth * CGFloat(page), y: 0), animated: animated)
     }
     
-    internal func process(_ scrollView: UIScrollView) {
+    func process(_ scrollView: UIScrollView) {
         if scrollView.contentOffset.x < mWidth {
             // 滚动到了第一张图片
             self.scrollToPage(page: mTotalCount, animated: false)
@@ -171,12 +201,12 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
         self.mPageCtrl.currentPage = pageCount
     }
     
-    internal func animationTimerDidFire() {
+    func animationTimerDidFire() {
         let pageCount = Int(self.mScrollView.contentOffset.x / mWidth)
         self.scrollToPage(page: pageCount+1, animated: true)
     }
     
-    internal func configView() {
+    func configView() {
         let scrollView = UIScrollView()
         scrollView.delegate = self
         scrollView.isPagingEnabled = true
@@ -184,51 +214,23 @@ open class NFCycleScrollView: UIView, UIScrollViewDelegate {
         scrollView.showsHorizontalScrollIndicator = false
         self.addSubview(scrollView)
         self.mScrollView = scrollView
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        self.addConstraint(NSLayoutConstraint(item: scrollView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: scrollView, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: scrollView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0))
-        self.addConstraint(NSLayoutConstraint(item: scrollView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0))
+//        scrollView.snp.makeConstraints { (make) in
+//            make.top.equalTo(self)
+//            make.bottom.equalTo(self)
+//            make.left.equalTo(self)
+//            make.right.equalTo(self)
+//        }
         
         let pageCtrl = UIPageControl()
         pageCtrl.pageIndicatorTintColor = UIColor(white: 1, alpha: 0.5)
         pageCtrl.currentPageIndicatorTintColor = UIColor.white
         self.addSubview(pageCtrl)
         self.mPageCtrl = pageCtrl
-        pageCtrl.translatesAutoresizingMaskIntoConstraints = false
-        self.addConstraint(NSLayoutConstraint(item: pageCtrl, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0))
-        let pageCtrlBottomConstraint = NSLayoutConstraint(item: pageCtrl, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: -mPageCtrlBottomOffset)
-        self.addConstraint(pageCtrlBottomConstraint)
-        self.mPageCtrlBottomConstraint = pageCtrlBottomConstraint
-      
+//        pageCtrl.snp.makeConstraints { (make) in
+//            make.bottom.equalTo(self).offset(-118)
+//            make.centerX.equalTo(self)
+//        }
+        
         self.resumeTimer(true)
     }
 }
-
-fileprivate extension Timer {
-    
-    //暂停
-    func nf_pauseTimer() {
-        if !self.isValid {
-            return
-        }
-        self.fireDate = Date.distantFuture
-    }
-    
-    //开始
-    func nf_resumeTimer() {
-        if !self.isValid {
-            return
-        }
-        self.fireDate = Date()
-    }
-    
-    //几秒钟后开始
-    func nf_resumeTimerAfterInterval(_ interval:TimeInterval) {
-        if !self.isValid {
-            return
-        }
-        self.fireDate = Date.init(timeIntervalSinceNow: interval)
-    }
-}
-

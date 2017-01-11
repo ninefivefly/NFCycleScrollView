@@ -11,12 +11,13 @@ import NFCycleScrollView
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var mBanner: NFCycleScrollView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        let ss = NFCycleScrollsView()
-        self.view.addSubview(ss)
+        self.automaticallyAdjustsScrollViewInsets = false
+        self.mBanner.config(views: ["discover_banner1", "discover_banner2", "discover_banner3"], width: UIScreen.main.bounds.size.width, height: 200)
     }
 
     override func didReceiveMemoryWarning() {

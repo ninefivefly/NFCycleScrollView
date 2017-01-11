@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  NFCycleScrollView: 885ec8b29204b2825c79d63c6ccd211ed866349c
+  NFCycleScrollView: 22f443c997aff6e5dfdd738cda3a73a8c9ddf159
 
 PODFILE CHECKSUM: 6dcc3214e2f4e5d095e9d4ac4c244f2cf11a3052
 
